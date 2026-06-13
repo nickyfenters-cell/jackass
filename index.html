@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexus — Beyond Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg: #000000;
+      --bg-2: #080810;
+      --bg-card: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --border-glow: rgba(99,102,241,0.4);
+      --accent: #6366f1;
+      --accent-2: #a78bfa;
+      --accent-cyan: #22d3ee;
+      --accent-orange: #f97316;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --glow: 0 0 60px rgba(99,102,241,0.15);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ── Noise overlay ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ── Gradient orbs ── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { width: 600px; height: 600px; background: rgba(99,102,241,0.18); top: -200px; left: -150px; animation: drift1 20s ease-in-out infinite; }
+    .orb-2 { width: 500px; height: 500px; background: rgba(34,211,238,0.12); top: 30%; right: -100px; animation: drift2 25s ease-in-out infinite; }
+    .orb-3 { width: 400px; height: 400px; background: rgba(167,139,250,0.1); bottom: 10%; left: 20%; animation: drift3 18s ease-in-out infinite; }
+
+    @keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(60px,80px)} }
+    @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-60px,60px)} }
+    @keyframes drift3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(40px,-60px)} }
+
+    /* ── Glassmorphism ── */
+    .glass {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px) saturate(1.5);
+      -webkit-backdrop-filter: blur(20px) saturate(1.5);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+    .glass-nav {
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(24px) saturate(1.8);
+      -webkit-backdrop-filter: blur(24px) saturate(1.8);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Glow text ── */
+    .glow-text {
+      background: linear-gradient(135deg, #fff 0%, #a78bfa 50%, #22d3ee 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .glow-accent { color: var(--accent-2); text-shadow: 0 0 30px rgba(167,139,250,0.5); }
+
+    /* ── Button ── */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border-radius: 12px; font-weight: 600; font-size: 15px;
+      color: #fff; cursor: pointer; border: none;
+      position: relative; overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 30px rgba(99,102,241,0.4);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 50px rgba(99,102,241,0.6); }
+    .btn-primary::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+      transition: opacity 0.2s;
+    }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 28px;
+      border: 1px solid var(--border);
+      border-radius: 12px; font-weight: 500; font-size: 15px;
+      color: var(--muted); cursor: pointer; background: transparent;
+      transition: color 0.2s, border-color 0.2s, transform 0.2s;
+    }
+    .btn-ghost:hover { color: #fff; border-color: rgba(255,255,255,0.2); transform: translateY(-2px); }
+
+    /* ── Feature cards ── */
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+      cursor: default;
+      position: relative; overflow: hidden;
+    }
+    .feature-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(99,102,241,0.05), transparent 60%);
+      opacity: 0; transition: opacity 0.3s;
+      border-radius: 20px;
+    }
+    .feature-card:hover { border-color: var(--border-glow); transform: translateY(-6px); box-shadow: 0 20px 60px rgba(99,102,241,0.15); }
+    .feature-card:hover::before { opacity: 1; }
+
+    /* ── Icon box ── */
+    .icon-box {
+      width: 52px; height: 52px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    /* ── Stats ── */
+    .stat-num { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700; line-height: 1; }
+
+    /* ── Testimonial ── */
+    .testimonial-track { display: flex; gap: 24px; animation: scroll-left 40s linear infinite; width: max-content; }
+    @keyframes scroll-left { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    .testimonial-wrap { overflow: hidden; mask: linear-gradient(to right, transparent, black 10%, black 90%, transparent); }
+
+    /* ── Reveal animations ── */
+    .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ── Grid pattern ── */
+    .grid-bg {
+      background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* ── Badge ── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 999px;
+      background: rgba(99,102,241,0.15);
+      border: 1px solid rgba(99,102,241,0.3);
+      font-size: 13px; font-weight: 500; color: var(--accent-2);
+    }
+
+    /* ── Pricing card ── */
+    .pricing-popular {
+      border-color: rgba(99,102,241,0.5);
+      box-shadow: 0 0 60px rgba(99,102,241,0.15), inset 0 0 60px rgba(99,102,241,0.03);
+    }
+
+    /* ── Scroll bar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #000; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+    /* ── Pulsing dot ── */
+    .pulse-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #4ade80;
+      box-shadow: 0 0 0 0 rgba(74,222,128,0.4);
+      animation: pulse-ring 2s infinite;
+    }
+    @keyframes pulse-ring { 0%{box-shadow:0 0 0 0 rgba(74,222,128,0.4)} 70%{box-shadow:0 0 0 10px rgba(74,222,128,0)} 100%{box-shadow:0 0 0 0 rgba(74,222,128,0)} }
+
+    /* ── Hero glow ring ── */
+    .hero-glow {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── Line separator ── */
+    .line-sep { height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Orbs -->
+<div class="orb orb-1" aria-hidden="true"></div>
+<div class="orb orb-2" aria-hidden="true"></div>
+<div class="orb orb-3" aria-hidden="true"></div>
+
+<!-- ══════════════════════════════════════════════
+     NAVBAR
+══════════════════════════════════════════════ -->
+<nav class="glass-nav fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <!-- Logo -->
+    <a href="#" class="flex items-center gap-2.5 cursor-pointer">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      </div>
+      <span class="font-bold text-lg tracking-tight text-white">Nexus</span>
+    </a>
+
+    <!-- Links -->
+    <div class="hidden md:flex items-center gap-8">
+      <a href="#features" class="text-sm text-slate-400 hover:text-white transition-colors cursor-pointer">Features</a>
+      <a href="#stats" class="text-sm text-slate-400 hover:text-white transition-colors cursor-pointer">Stats</a>
+      <a href="#pricing" class="text-sm text-slate-400 hover:text-white transition-colors cursor-pointer">Pricing</a>
+      <a href="#testimonials" class="text-sm text-slate-400 hover:text-white transition-colors cursor-pointer">Reviews</a>
+    </div>
+
+    <!-- CTA -->
+    <div class="flex items-center gap-3">
+      <a href="#" class="hidden sm:block text-sm text-slate-400 hover:text-white transition-colors cursor-pointer">Sign in</a>
+      <button class="btn-primary text-sm px-5 py-2.5">Get started free</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════ -->
+<section class="relative min-h-screen flex items-center justify-center grid-bg pt-16">
+  <div class="hero-glow" aria-hidden="true"></div>
+
+  <div class="relative z-10 max-w-5xl mx-auto px-6 text-center py-24">
+    <!-- Status badge -->
+    <div class="flex justify-center mb-8 reveal">
+      <div class="badge">
+        <div class="pulse-dot" aria-hidden="true"></div>
+        Now in public beta — Join 12,000+ teams
+      </div>
+    </div>
+
+    <!-- Headline -->
+    <h1 class="text-5xl sm:text-6xl md:text-7xl font-bold leading-[1.05] tracking-tight mb-6 reveal reveal-delay-1">
+      Intelligence that<br />
+      <span class="glow-text">shapes the future</span>
+    </h1>
+
+    <p class="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed reveal reveal-delay-2">
+      Nexus fuses AI reasoning with real-time data streams to give your team
+      a decisive edge. Ship faster, decide smarter, grow without limits.
+    </p>
+
+    <!-- CTAs -->
+    <div class="flex flex-wrap justify-center gap-4 mb-16 reveal reveal-delay-3">
+      <button class="btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Start building free
+      </button>
+      <button class="btn-ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+        Watch demo
+      </button>
+    </div>
+
+    <!-- Hero visual -->
+    <div class="reveal reveal-delay-4 relative">
+      <div class="glass rounded-2xl p-1 max-w-4xl mx-auto" style="box-shadow: 0 0 80px rgba(99,102,241,0.2), 0 40px 80px rgba(0,0,0,0.6);">
+        <!-- Fake browser chrome -->
+        <div class="glass rounded-t-xl px-4 py-3 flex items-center gap-2 border-b border-white/5">
+          <div class="w-3 h-3 rounded-full bg-red-500/70"></div>
+          <div class="w-3 h-3 rounded-full bg-yellow-500/70"></div>
+          <div class="w-3 h-3 rounded-full bg-green-500/70"></div>
+          <div class="ml-4 flex-1 glass rounded-md py-1.5 px-3 text-xs text-slate-500">nexus.ai/dashboard</div>
+        </div>
+        <!-- Dashboard content -->
+        <div class="p-6 space-y-4">
+          <!-- Top row stats -->
+          <div class="grid grid-cols-3 gap-4">
+            <div class="glass rounded-xl p-4">
+              <div class="text-xs text-slate-500 mb-1">Revenue MTD</div>
+              <div class="text-xl font-bold text-white">$284,921</div>
+              <div class="text-xs text-emerald-400 mt-1 flex items-center gap-1">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
+                +18.4%
+              </div>
+            </div>
+            <div class="glass rounded-xl p-4">
+              <div class="text-xs text-slate-500 mb-1">Active Users</div>
+              <div class="text-xl font-bold text-white">12,048</div>
+              <div class="text-xs text-emerald-400 mt-1 flex items-center gap-1">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
+                +6.2%
+              </div>
+            </div>
+            <div class="glass rounded-xl p-4">
+              <div class="text-xs text-slate-500 mb-1">AI Queries</div>
+              <div class="text-xl font-bold text-white">3.8M</div>
+              <div class="text-xs text-violet-400 mt-1 flex items-center gap-1">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
+                +42.1%
+              </div>
+            </div>
+          </div>
+          <!-- Chart placeholder -->
+          <div class="glass rounded-xl p-4 h-32 flex items-end gap-1.5 overflow-hidden">
+            <div class="text-xs text-slate-500 absolute mt-[-8px]">Weekly performance</div>
+            <div class="flex items-end gap-1.5 w-full h-full pt-5">
+              <div class="flex-1 rounded-sm" style="height:40%;background:rgba(99,102,241,0.4)"></div>
+              <div class="flex-1 rounded-sm" style="height:60%;background:rgba(99,102,241,0.5)"></div>
+              <div class="flex-1 rounded-sm" style="height:50%;background:rgba(99,102,241,0.4)"></div>
+              <div class="flex-1 rounded-sm" style="height:75%;background:rgba(99,102,241,0.6)"></div>
+              <div class="flex-1 rounded-sm" style="height:65%;background:rgba(99,102,241,0.5)"></div>
+              <div class="flex-1 rounded-sm" style="height:90%;background:linear-gradient(to top,#6366f1,#a78bfa)"></div>
+              <div class="flex-1 rounded-sm" style="height:80%;background:rgba(99,102,241,0.6)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating cards -->
+      <div class="absolute -left-6 top-1/3 glass rounded-xl p-3 hidden lg:flex items-center gap-3" style="box-shadow:0 8px 32px rgba(0,0,0,0.4)">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div>
+          <div class="text-xs font-semibold text-white">Deploy complete</div>
+          <div class="text-xs text-slate-500">2s ago</div>
+        </div>
+      </div>
+
+      <div class="absolute -right-6 bottom-1/3 glass rounded-xl p-3 hidden lg:flex items-center gap-3" style="box-shadow:0 8px 32px rgba(0,0,0,0.4)">
+        <div class="w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div>
+          <div class="text-xs font-semibold text-white">AI model updated</div>
+          <div class="text-xs text-slate-500">GPT-5 — 99.8% acc</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     LOGOS
+══════════════════════════════════════════════ -->
+<section class="py-16 relative z-10">
+  <div class="max-w-5xl mx-auto px-6">
+    <p class="text-center text-sm text-slate-600 mb-8 tracking-widest uppercase">Trusted by world-class teams</p>
+    <div class="flex flex-wrap justify-center items-center gap-x-12 gap-y-6">
+      <span class="text-slate-600 font-bold text-lg tracking-tight hover:text-slate-400 transition-colors cursor-default">Stripe</span>
+      <span class="text-slate-600 font-bold text-lg tracking-tight hover:text-slate-400 transition-colors cursor-default">Vercel</span>
+      <span class="text-slate-600 font-bold text-lg tracking-tight hover:text-slate-400 transition-colors cursor-default">Linear</span>
+      <span class="text-slate-600 font-bold text-lg tracking-tight hover:text-slate-400 transition-colors cursor-default">Notion</span>
+      <span class="text-slate-600 font-bold text-lg tracking-tight hover:text-slate-400 transition-colors cursor-default">Figma</span>
+      <span class="text-slate-600 font-bold text-lg tracking-tight hover:text-slate-400 transition-colors cursor-default">Loom</span>
+    </div>
+  </div>
+</section>
+
+<div class="line-sep max-w-5xl mx-auto"></div>
+
+<!-- ══════════════════════════════════════════════
+     FEATURES
+══════════════════════════════════════════════ -->
+<section id="features" class="py-28 relative z-10">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <div class="badge mb-5 reveal">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Capabilities
+      </div>
+      <h2 class="text-4xl sm:text-5xl font-bold mb-4 reveal reveal-delay-1">
+        Everything your team needs<br/>
+        <span class="glow-text">in one platform</span>
+      </h2>
+      <p class="text-slate-400 max-w-xl mx-auto text-lg reveal reveal-delay-2">
+        Built for speed, scaled for enterprise. Every feature designed with deep attention to developer experience.
+      </p>
+    </div>
+
+    <!-- Bento grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <!-- Large card -->
+      <div class="feature-card lg:col-span-2 reveal">
+        <div class="icon-box bg-indigo-500/15">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><path d="M22 12V2l-4 4-4-4"/></svg>
+        </div>
+        <h3 class="text-xl font-semibold text-white mb-2">Real-time AI reasoning</h3>
+        <p class="text-slate-400 leading-relaxed mb-6">Chain complex reasoning steps across live data streams. Nexus processes millions of signals per second to surface the insights that matter — before you even ask.</p>
+        <div class="glass rounded-xl p-4 flex items-center gap-3">
+          <div class="text-xs text-slate-500 font-mono">Analyzing market signal...</div>
+          <div class="ml-auto flex gap-1">
+            <div class="w-1.5 h-4 rounded-full bg-indigo-500 animate-pulse"></div>
+            <div class="w-1.5 h-5 rounded-full bg-violet-500 animate-pulse" style="animation-delay:0.15s"></div>
+            <div class="w-1.5 h-3 rounded-full bg-cyan-500 animate-pulse" style="animation-delay:0.3s"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tall card -->
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="icon-box bg-violet-500/15">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <h3 class="text-xl font-semibold text-white mb-2">Adaptive dashboards</h3>
+        <p class="text-slate-400 leading-relaxed">Layouts that reshape themselves to the data. No more stale reports — your workspace updates live as the world changes.</p>
+      </div>
+
+      <!-- Small card -->
+      <div class="feature-card reveal">
+        <div class="icon-box bg-cyan-500/15">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold text-white mb-2">Edge-native compute</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">Sub-10ms latency via 300+ edge nodes. Your users never wait.</p>
+      </div>
+
+      <!-- Small card -->
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="icon-box bg-emerald-500/15">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold text-white mb-2">SOC 2 Type II</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">Enterprise security out of the box. GDPR, HIPAA, and ISO 27001 compliant.</p>
+      </div>
+
+      <!-- Wide card -->
+      <div class="feature-card lg:col-span-3 md:col-span-2 reveal reveal-delay-2">
+        <div class="flex flex-col md:flex-row gap-8 items-start">
+          <div class="flex-1">
+            <div class="icon-box bg-orange-500/15">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <h3 class="text-xl font-semibold text-white mb-2">Team collaboration, redefined</h3>
+            <p class="text-slate-400 leading-relaxed max-w-md">Async and sync workflows in the same canvas. Bring your whole org onto a shared intelligence layer with granular permissions, audit logs, and role-based access.</p>
+          </div>
+          <div class="flex-1 grid grid-cols-2 gap-3">
+            <div class="glass rounded-xl p-3 flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-pink-400 to-rose-500"></div>
+              <div class="text-sm text-white">Sarah K. <span class="text-slate-500 text-xs">• editing</span></div>
+            </div>
+            <div class="glass rounded-xl p-3 flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-400 to-violet-500"></div>
+              <div class="text-sm text-white">Alex M. <span class="text-slate-500 text-xs">• viewing</span></div>
+            </div>
+            <div class="glass rounded-xl p-3 flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-orange-500"></div>
+              <div class="text-sm text-white">Jordan L. <span class="text-slate-500 text-xs">• idle</span></div>
+            </div>
+            <div class="glass rounded-xl p-3 flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500"></div>
+              <div class="text-sm text-white">+48 more</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     STATS
+══════════════════════════════════════════════ -->
+<section id="stats" class="py-24 relative z-10">
+  <div class="max-w-5xl mx-auto px-6">
+    <div class="glass rounded-3xl p-10 md:p-16" style="box-shadow: 0 0 80px rgba(99,102,241,0.1);">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        <div class="reveal">
+          <div class="stat-num glow-text">99.99%</div>
+          <div class="text-slate-400 text-sm mt-2">Uptime SLA</div>
+        </div>
+        <div class="reveal reveal-delay-1">
+          <div class="stat-num glow-text">8ms</div>
+          <div class="text-slate-400 text-sm mt-2">Avg latency</div>
+        </div>
+        <div class="reveal reveal-delay-2">
+          <div class="stat-num glow-text">12K+</div>
+          <div class="text-slate-400 text-sm mt-2">Teams worldwide</div>
+        </div>
+        <div class="reveal reveal-delay-3">
+          <div class="stat-num glow-text">3.8B</div>
+          <div class="text-slate-400 text-sm mt-2">AI queries served</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     TESTIMONIALS
+══════════════════════════════════════════════ -->
+<section id="testimonials" class="py-24 relative z-10 overflow-hidden">
+  <div class="max-w-7xl mx-auto px-6 mb-12 text-center">
+    <h2 class="text-4xl font-bold mb-4 reveal">Loved by builders</h2>
+    <p class="text-slate-400 reveal reveal-delay-1">Don't take our word for it — hear from the teams shipping with Nexus.</p>
+  </div>
+
+  <div class="testimonial-wrap">
+    <div class="testimonial-track" aria-label="Testimonials carousel">
+      <!-- 8 testimonials duplicated for seamless loop -->
+      <div class="glass rounded-2xl p-6 w-80 flex-shrink-0">
+        <div class="flex gap-1 mb-3" aria-label="5 stars">
+          <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="text-slate-300 text-sm leading-relaxed mb-4">"Nexus replaced four separate tools for us. The real-time AI layer is unlike anything we've seen — it surfaces insights we didn't know to ask for."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex-shrink-0"></div>
+          <div><div class="text-sm font-medium text-white">Maya Rodriguez</div><div class="text-xs text-slate-500">CTO, Shipyard</div></div>
+        </div>
+      </div>
+      <div class="glass rounded-2xl p-6 w-80 flex-shrink-0">
+        <div class="flex gap-1 mb-3" aria-label="5 stars">
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="text-slate-300 text-sm leading-relaxed mb-4">"We cut our decision cycle from 3 days to 2 hours. The edge latency is legitimately magical — I've never seen a tool respond this fast."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-violet-500 flex-shrink-0"></div>
+          <div><div class="text-sm font-medium text-white">Tomás Eriksson</div><div class="text-xs text-slate-500">Head of Eng, Volta</div></div>
+        </div>
+      </div>
+      <div class="glass rounded-2xl p-6 w-80 flex-shrink-0">
+        <div class="flex gap-1 mb-3" aria-label="5 stars">
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="text-slate-300 text-sm leading-relaxed mb-4">"Security-first design is rarely this beautiful. We passed our SOC 2 audit with zero findings — Nexus had already handled everything."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex-shrink-0"></div>
+          <div><div class="text-sm font-medium text-white">Priya Nair</div><div class="text-xs text-slate-500">CISO, ArcCloud</div></div>
+        </div>
+      </div>
+      <div class="glass rounded-2xl p-6 w-80 flex-shrink-0">
+        <div class="flex gap-1 mb-3" aria-label="5 stars">
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="text-slate-300 text-sm leading-relaxed mb-4">"The onboarding took 11 minutes. Not 11 days — 11 minutes. Our team was in production the same afternoon. Incredible DX."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex-shrink-0"></div>
+          <div><div class="text-sm font-medium text-white">Jamal Washington</div><div class="text-xs text-slate-500">Founder, Lattice</div></div>
+        </div>
+      </div>
+      <!-- Duplicate set for seamless loop -->
+      <div class="glass rounded-2xl p-6 w-80 flex-shrink-0">
+        <div class="flex gap-1 mb-3" aria-label="5 stars">
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="text-slate-300 text-sm leading-relaxed mb-4">"Nexus replaced four separate tools for us. The real-time AI layer is unlike anything we've seen — it surfaces insights we didn't know to ask for."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex-shrink-0"></div>
+          <div><div class="text-sm font-medium text-white">Maya Rodriguez</div><div class="text-xs text-slate-500">CTO, Shipyard</div></div>
+        </div>
+      </div>
+      <div class="glass rounded-2xl p-6 w-80 flex-shrink-0">
+        <div class="flex gap-1 mb-3" aria-label="5 stars">
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="text-slate-300 text-sm leading-relaxed mb-4">"We cut our decision cycle from 3 days to 2 hours. The edge latency is legitimately magical — I've never seen a tool respond this fast."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-violet-500 flex-shrink-0"></div>
+          <div><div class="text-sm font-medium text-white">Tomás Eriksson</div><div class="text-xs text-slate-500">Head of Eng, Volta</div></div>
+        </div>
+      </div>
+      <div class="glass rounded-2xl p-6 w-80 flex-shrink-0">
+        <div class="flex gap-1 mb-3" aria-label="5 stars">
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="text-slate-300 text-sm leading-relaxed mb-4">"Security-first design is rarely this beautiful. We passed our SOC 2 audit with zero findings — Nexus had already handled everything."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex-shrink-0"></div>
+          <div><div class="text-sm font-medium text-white">Priya Nair</div><div class="text-xs text-slate-500">CISO, ArcCloud</div></div>
+        </div>
+      </div>
+      <div class="glass rounded-2xl p-6 w-80 flex-shrink-0">
+        <div class="flex gap-1 mb-3" aria-label="5 stars">
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="w-4 h-4 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="text-slate-300 text-sm leading-relaxed mb-4">"The onboarding took 11 minutes. Not 11 days — 11 minutes. Our team was in production the same afternoon. Incredible DX."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex-shrink-0"></div>
+          <div><div class="text-sm font-medium text-white">Jamal Washington</div><div class="text-xs text-slate-500">Founder, Lattice</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     PRICING
+══════════════════════════════════════════════ -->
+<section id="pricing" class="py-28 relative z-10">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl sm:text-5xl font-bold mb-4 reveal">Simple, honest pricing</h2>
+      <p class="text-slate-400 text-lg reveal reveal-delay-1">Start free. Scale when you're ready. No surprises.</p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6 items-start">
+
+      <!-- Starter -->
+      <div class="feature-card reveal">
+        <div class="text-sm font-medium text-slate-400 mb-1">Starter</div>
+        <div class="flex items-end gap-1 mb-1">
+          <span class="text-4xl font-bold text-white">$0</span>
+          <span class="text-slate-500 mb-1">/mo</span>
+        </div>
+        <p class="text-sm text-slate-500 mb-6">Perfect for indie hackers and small projects.</p>
+        <button class="btn-ghost w-full justify-center mb-6">Get started</button>
+        <ul class="space-y-3">
+          <li class="flex items-center gap-2 text-sm text-slate-300">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Up to 5 team members
+          </li>
+          <li class="flex items-center gap-2 text-sm text-slate-300">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            10K AI queries / month
+          </li>
+          <li class="flex items-center gap-2 text-sm text-slate-300">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Community support
+          </li>
+          <li class="flex items-center gap-2 text-sm text-slate-500">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            SSO & advanced RBAC
+          </li>
+          <li class="flex items-center gap-2 text-sm text-slate-500">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            SLA guarantee
+          </li>
+        </ul>
+      </div>
+
+      <!-- Pro (popular) -->
+      <div class="feature-card pricing-popular reveal reveal-delay-1 relative">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+          <div class="badge text-xs">Most Popular</div>
+        </div>
+        <div class="text-sm font-medium text-violet-400 mb-1">Pro</div>
+        <div class="flex items-end gap-1 mb-1">
+          <span class="text-4xl font-bold text-white">$49</span>
+          <span class="text-slate-500 mb-1">/mo</span>
+        </div>
+        <p class="text-sm text-slate-500 mb-6">For growing teams that need more power.</p>
+        <button class="btn-primary w-full justify-center mb-6">Start free trial</button>
+        <ul class="space-y-3">
+          <li class="flex items-center gap-2 text-sm text-slate-300">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Up to 50 team members
+          </li>
+          <li class="flex items-center gap-2 text-sm text-slate-300">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            1M AI queries / month
+          </li>
+          <li class="flex items-center gap-2 text-sm text-slate-300">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Priority support
+          </li>
+          <li class="flex items-center gap-2 text-sm text-slate-300">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            SSO & advanced RBAC
+          </li>
+          <li class="flex items-center gap-2 text-sm text-slate-500">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Custom SLA
+          </li>
+        </ul>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="text-sm font-medium text-slate-400 mb-1">Enterprise</div>
+        <div class="flex items-end gap-1 mb-1">
+          <span class="text-4xl font-bold text-white">Custom</span>
+        </div>
+        <p class="text-sm text-slate-500 mb-6">For large orgs with mission-critical requirements.</p>
+        <button class="btn-ghost w-full justify-center mb-6">Contact sales</button>
+        <ul class="space-y-3">
+          <li class="flex items-center gap-2 text-sm text-slate-300">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Unlimited members
+          </li>
+          <li class="flex items-center gap-2 text-sm text-slate-300">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Unlimited AI queries
+          </li>
+          <li class="flex items-center gap-2 text-sm text-slate-300">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Dedicated support
+          </li>
+          <li class="flex items-center gap-2 text-sm text-slate-300">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            SSO, SAML, SCIM
+          </li>
+          <li class="flex items-center gap-2 text-sm text-slate-300">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            99.99% SLA + VPC deploy
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     CTA
+══════════════════════════════════════════════ -->
+<section class="py-28 relative z-10">
+  <div class="max-w-4xl mx-auto px-6 text-center">
+    <div class="glass rounded-3xl p-12 md:p-20 relative overflow-hidden" style="box-shadow: 0 0 100px rgba(99,102,241,0.15);">
+      <!-- Glow effect inside card -->
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full" style="background:radial-gradient(circle,rgba(99,102,241,0.15) 0%,transparent 70%);pointer-events:none"></div>
+      <div class="relative">
+        <h2 class="text-4xl sm:text-5xl font-bold mb-4 reveal">
+          Ready to move<br/><span class="glow-text">at the speed of thought?</span>
+        </h2>
+        <p class="text-slate-400 text-lg mb-10 reveal reveal-delay-1">
+          Join 12,000+ teams already using Nexus to outpace the competition.<br/>Free forever. No credit card required.
+        </p>
+        <div class="flex flex-wrap justify-center gap-4 reveal reveal-delay-2">
+          <button class="btn-primary text-base px-8 py-4">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Start for free
+          </button>
+          <button class="btn-ghost text-base px-8 py-4">Talk to sales</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════════ -->
+<footer class="relative z-10 border-t border-white/5 py-12">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="flex flex-col md:flex-row justify-between gap-8 mb-10">
+      <div>
+        <a href="#" class="flex items-center gap-2.5 mb-3 cursor-pointer">
+          <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <span class="font-bold text-white">Nexus</span>
+        </a>
+        <p class="text-slate-500 text-sm max-w-xs leading-relaxed">AI-powered intelligence platform for teams that build the future.</p>
+      </div>
+      <div class="grid grid-cols-3 gap-8">
+        <div>
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Product</div>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-sm text-slate-500 hover:text-white transition-colors cursor-pointer">Features</a></li>
+            <li><a href="#" class="text-sm text-slate-500 hover:text-white transition-colors cursor-pointer">Pricing</a></li>
+            <li><a href="#" class="text-sm text-slate-500 hover:text-white transition-colors cursor-pointer">Changelog</a></li>
+            <li><a href="#" class="text-sm text-slate-500 hover:text-white transition-colors cursor-pointer">Roadmap</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Company</div>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-sm text-slate-500 hover:text-white transition-colors cursor-pointer">About</a></li>
+            <li><a href="#" class="text-sm text-slate-500 hover:text-white transition-colors cursor-pointer">Blog</a></li>
+            <li><a href="#" class="text-sm text-slate-500 hover:text-white transition-colors cursor-pointer">Careers</a></li>
+            <li><a href="#" class="text-sm text-slate-500 hover:text-white transition-colors cursor-pointer">Press</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Legal</div>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-sm text-slate-500 hover:text-white transition-colors cursor-pointer">Privacy</a></li>
+            <li><a href="#" class="text-sm text-slate-500 hover:text-white transition-colors cursor-pointer">Terms</a></li>
+            <li><a href="#" class="text-sm text-slate-500 hover:text-white transition-colors cursor-pointer">Security</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="line-sep mb-6"></div>
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+      <p class="text-slate-600 text-sm">© 2026 Nexus, Inc. All rights reserved.</p>
+      <div class="flex items-center gap-1 text-slate-600 text-sm">
+        <div class="pulse-dot" aria-hidden="true" style="width:6px;height:6px"></div>
+        All systems operational
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  revealEls.forEach(el => observer.observe(el));
+
+  // Trigger hero reveals immediately
+  document.querySelectorAll('.reveal').forEach((el, i) => {
+    if (el.getBoundingClientRect().top < window.innerHeight) {
+      setTimeout(() => el.classList.add('visible'), i * 80);
+    }
+  });
+
+  // Pause marquee on hover
+  const track = document.querySelector('.testimonial-track');
+  track.addEventListener('mouseenter', () => track.style.animationPlayState = 'paused');
+  track.addEventListener('mouseleave', () => track.style.animationPlayState = 'running');
+
+  // Smooth nav highlight
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a[href^="#"]');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) current = s.id; });
+    navLinks.forEach(a => {
+      a.classList.toggle('text-white', a.getAttribute('href') === '#' + current);
+      a.classList.toggle('text-slate-400', a.getAttribute('href') !== '#' + current);
+    });
+  }, { passive: true });
+</script>
+</body>
+</html>
